@@ -43,11 +43,21 @@ typedef Signal1<void, IMEngineInstanceBase *>
 template <typename R, typename P1, typename Marshal = class DefaultMarshal<R>>
 class Signal1 : public Signal {
 };
+template <typename P1, typename IgnoreMarshal>
+class Signal1<void, P1, IgnoreMarshal> : public Signal
+{
+}
 class Signal {
 public:
   SlotNode *connect (Slot *slot);
 };
 class SlotNode : public Node {
+  SlotNode (Slot *slot) : Node (slot);
+};
+class Node : public ReferencedObject {
+  Pointer <Slot> slot_;
+protected:
+  Node (Slot *slot) : slot_ (slot);
 };
 class Slot : public ReferencedObject {
 };
