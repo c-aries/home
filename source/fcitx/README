@@ -1,0 +1,6 @@
+/etc/X11/Xsession.d/80im-switch
+$ cp fcitx /etc/X11/xinit/xinput.d/
+$ im-switch -l
+$ im-switch -s fcitx
+/etc/alternatives/xinput-zh_CN 
+~/.xinput.d/zh_CN
