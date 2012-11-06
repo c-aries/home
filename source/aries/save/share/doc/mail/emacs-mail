@@ -1,0 +1,125 @@
+* Title * 配置、使用emacs的邮件系统
+
+** 安装软件
+$ sudo apt-get install fetchmail esmtp procmail starttls
+
+** fetchmail配置
+
+$ cat ~/.fetchmailrc
+defaults
+
+mda "/usr/bin/esmtp -f %F %T"
+
+poll pop.gmail.com                                                                           
+protocol pop3                                                                                
+port 995                                                                                     
+                                                                                             
+uidl                                                                                         
+                                                                                             
+user "babyaries2" #邮箱帐号                                                                  
+password "********" #邮箱密码，请自己修改其内容                                              
+                                                                                             
+keep                                                                                         
+                                                                                             
+ssl sslcertck                                                                                
+$ chmod 0710 ~/.fetchmailrc 
+
+** esmtp配置
+$ cat ~/.esmtprc
+identity babyaries2@gmail.com                                                                
+hostname smtp.gmail.com:587                                                                  
+username="babyaries2@gmail.com" #邮箱帐号                                                    
+password="********" #邮箱密码，请自己修改其内容                                              
+starttls =enabled                                                                            
+mda = "/usr/bin/procmail -d %T" #new                                                         
+default                                                                                      
+$ chmod 0710 ~/.esmtprc 
+
+** 运行fetchmail
+$ fetchmail -av
+#省略输出内容
+You have new mail in /var/mail/c-aries
+$
+
+--- 以上UNIX传统的邮件接收过程(放入inbox)已完成
+- Rmail uses the `movemail' program to move mail from your inbox to your
+-   The Emacs version of `movemail' is able to retrieve mail from the
+usual UNIX mailbox formats and from remote mailboxes using the POP3
+protocol.
+
+** RMAIL配置
+
+$ cat ~/.emacs | grep mail
+;; Email
+(load-file "~/.emacs.d/site-lisp/mail/mail.el")
+$ mkdir -p ~/.emacs.d/site-lisp/mail/data
+$ cat ~/.emacs.d/site-lisp/mail/mail.el
+(setq user-mail-address "babyaries2@gmail.com")
+(setq rmail-file-name "~/.emacs.d/site-lisp/mail/data/RMAIL"
+      rmail-default-rmail-file "~/.emacs.d/site-lisp/mail/data/XMAIL")
+
+(setq send-mail-function 'smtpmail-send-it
+
+   message-send-mail-function 'smtpmail-send-it
+   smtpmail-starttls-credentials
+   '(("smtp.gmail.com" 587 nil nil))
+   smtpmail-auth-credentials
+   (expand-file-name "~/.smtp-authinfo")
+
+   smtpmail-default-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-server "smtp.gmail.com"
+   smtpmail-smtp-service 587
+   smtpmail-debug-info t
+
+   starttls-extra-arguments nil
+   smtpmail-warn-about-unknown-extensions t
+   starttls-use-gnutls nil
+   smtpmail-queue-mail t
+   smtpmail-queue-dir "~/.emacs.d/site-lisp/mail/data/queue/")
+
+(require 'smtpmail)
+$ cat ~/.smtp-authinfo
+machine smtp.gmail.com login "babyaries2@gmail.com" password "********" #填入自己的密码
+$ 
+
+** RMAIL转换邮件
+M-x rmail
+
+** RMAIL阅读邮件
+h	Show headers buffer, with a one line summary of each message.
+
+** 写邮件
+C-x m ;写邮件
+C-c s ;发送邮件
+
+$ mail
+"/var/mail/c-aries": 1 message 1 new
+>N   1 Mail Delivery Syst 六 11月 13 12:  39/1327  Mail delivery failed: ret
+& 
+
+--- Concepts
+
+SMTP: simple mail transfer protocol
+On the internet, mail is sent from mail host to mail host using the simple mail transfer protocol.
+MTA: mail transfer agent / Exim
+Every mail host runs a mail transfer agent such as Exim that accepts mails and passes them on.
+MUA: mail user agent / Sendmail
+The mail program — also called a mail user agent — usually sends outgoing mail to a mail host.
+MDA: mail delivery agent / procmail
+The messages get into the file by way of a mail delivery agent such as procmail.
+
+--- 总结
+$ fetchmail -av
+M rmail
+
+MTA (mail transfer agent) esmtp
+MDA (mail delivery agent) procmail
+MUA (mail user agent) 
+
+---
+[encode]
+base-64
+uuencode -m
+mimencode
+[decode]
+mimencode -u

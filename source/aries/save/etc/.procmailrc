@@ -1,0 +1,42 @@
+MAILDIR = $HOME/.emacs.d/data/mail/list/
+LOGFILE = $HOME/log/procmaillog
+
+#黑名单
+
+#:0
+#* ^List-ID:.*linux-kernel.vger.kernel.org
+#/dev/null
+
+#邮件列表
+
+:0
+* ^List-Id:.*info-fsf.gnu.org
+gnu
+
+:0
+* ^List-Id:.*gtk-devel-list.gnome.org
+* ^List-Id:.*gtk-app-devel-list.gnome.org
+gtk
+
+:0
+* ^List-Id:.*binutils.sourceware.org
+binutils
+
+:0
+* ^List-Id:.*gcc-announce.gcc.gnu.org
+gcc
+
+:0
+* ^List-Id:.*dragora-ardi@listas.usla.org.ar
+dragora
+
+#发给自己的邮件
+
+:0
+* ^From:.*babyaries@126.com
+* ^From:.*babyaries2@gmail.com
+me
+
+#:0
+#* .*
+#default

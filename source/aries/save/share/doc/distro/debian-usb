@@ -1,0 +1,237 @@
+Location: http://www.linuxeden.com/html/softuse/20091115/69131.html            
+                      Linuxeden是中国最大的开源资讯门户                       
+                                                                              
+                                     • 首页                                   
+                                                                              
+                                     • 新闻                                   
+                                                                              
+                                     • 软件                                   
+                                                                              
+                                     • 博客                                   
+                                                                              
+                                     • 论坛                                   
+                                                                              
+                                     • 商城                                   
+                                                                              
+                                     • 人才                                   
+                                                                              
+                                     • 广告                                   
+                                                                              
+                                     • 联系                                   
+                                                                              
+                                     • 投稿                                   
+                                                                              
+                                    • 产品库                                  
+                                                                              
+                               • [mobile]3G Eden                              
+                                                                              
+                                 • [rsslogo]RSS                               
+                                                                              
+                                     • 入门                                   
+                                     • 前沿                                   
+                                   • 系统管理                                 
+                                   • 网络管理                                 
+                                   • 使用经验                                 
+                                   • 编程开发                                 
+                                     • 安全                                   
+                                   • 解决方案                                 
+                                   • 硬件相关                                 
+                                     • Unix                                   
+                                    • 数据库                                  
+                                    • 观点                                    
+                                    • 人物                                    
+                                     • 嵌入                                   
+                                                                              
+                                     • 新手                                   
+                                    • 服务器                                  
+                                    • 中文化                                  
+                                    • RedHat                                  
+                                    • Fedora                                  
+                                    • Debian                                  
+                                    • Ubuntu                                  
+                                   • Mandriva                                 
+                                    • Mysql                                   
+                                     • php                                    
+                                    • Shell                                   
+                                     • C++                                    
+                                  • Turbomail                                 
+                                                                              
+位置: Linuxeden主页>使用经验>
+
+用U盘安装GNU/Linux
+
+　　最近想买部10寸本，因为10寸本、上网本没有自带光驱，所以需要用U盘安装GNU/
+Linux
+本文以Debian GNU/Linux 5为例
+
+参考文章为 http://www.debian.org/releases/stable/i386/ch04s03.html.zh_CN#
+usb-copy-flexible
+
+半年前贪玩曾经想制作个大容量的安装U盘（如：4G容量），后来因为粗心没制作成功，
+现在终于成功了|o|，现记录过程如下：
+[212620A62-]
+安装相关软件
+
+$ sudo apt-get install dosfstools syslinux mbr                            
+
+插入U盘，查看U盘相应的设备名
+
+$ sudo /sbin/fdisk -l                                                     
+...                                                                       
+   Device Boot      Start         End      Blocks   Id  System            
+/dev/sdb1               1         250     2008093+  83  Linux             
+
+卸载U盘，分区并格式化
+
+$ sudo umount /dev/sdb1                                                   
+$ sudo /sbin/fdisk /dev/sdb                                               
+...                                                                       
+// fdisk的操作省略                                                        
+// 详细教程请阅读 Gentoo文档 http://www.gentoo.org/doc/zh_cn/handbook/    
+handbook-x86.xml?part=1&chap=4 中的"4.c. 使用fdisk来为你的磁盘分区"       
+// 本文测试时使用了Debian建议的FAT16文件系统格式                          
+// 关键点在于为第一个分区添加boot启动标记                                 
+// e.g. Command (m for help): a                                           
+$ sudo mkdosfs /dev/sdb1                                                  
+
+安装syslinux
+
+$ sudo syslinux /dev/sdb1                                                 
+
+挂载U盘，验证syslinux是否安装成功
+
+$ sudo mkdir /media/usb                                                   
+$ sudo mount /dev/sdb1 /media/usb                                         
+$ cd /media/usb/                                                          
+$ ls                                                                      
+ldlinux.sys                                                               
+
+下载U盘（硬盘）格式启动的initrd.gz和vmlinuz，下载Debian安装盘的镜像
+
+$ wget -c http://ftp.de.debian.org/debian/dists/lenny/main/installer-i386/
+current/images/hd-media/initrd.gz                                         
+// -c 参数为wget的继传功能，中断下载后，在相同的目录下，再输入以上命令，能
+继续上次的下载                                                            
+$ wget -c http://ftp.de.debian.org/debian/dists/lenny/main/installer-i386/
+current/images/hd-media/vmlinuz                                           
+$ ls                                                                      
+initrd.gz  ldlinux.sys  vmlinuz                                           
+$ wget -c http://ftp.de.debian.org/debian-cd/current/i386/iso-cd/         
+debian-503-i386-CD-1.iso                                                  
+$ ls                                                                      
+debian-503-i386-CD-1.iso  initrd.gz  ldlinux.sys  vmlinuz                 
+
+编写syslinux的配置文件
+
+$ cat > syslinux.cfg << EOF                                               
+> default vmlinuz                                                         
+> append initrd=initrd.gz                                                 
+> EOF                                                                     
+$ ls                                                                      
+debian-503-i386-CD-1.iso  initrd.gz  ldlinux.sys syslinux.cfg vmlinuz     
+
+卸载U盘，修复U盘主引导扇区(不一定要修复，如果无法从U盘启动，可考虑修复)
+
+$ sudo umount /dev/sdb1                                                   
+$ sudo install-mbr /dev/sdb                                               
+
+注：大多数人在gnome的环境下运行以上命令，有时会遇到设备忙的情况（原因有很多，
+如gnome有U盘自动挂载的功能），其中一个解决方案是退出X环境（退出X环境的方法如按
+ctrl+alt+backspace），到没有X的环境(如按ctrl+alt+f1)下再次运行冲突了的命令。我
+比较喜欢在没有X的环境下完成以上所有工作：）
+
+最后是重启系统，设置bios启动方式
+bios启动方式中：
+usb-cdrom用于USB光驱
+usb-fdd用于模拟软驱的USB格式
+usb-zip用于小于或等于256MB大小的U盘
+usb-hdd用于大容量U盘
+
+这里应该选择usb-hdd启动方式
+
+设置好bios的启动方式后，插入刚制作好的安装U盘，重启系统，顺利进入安装界面
+
+附：U盘顺利启动，但提示找不到iso镜像的其中一种原因
+可能是下载的iso文件受损了
+到 http://ftp.de.debian.org/debian-cd/current/i386/iso-cd/MD5SUMS 查看到以下的
+信息
+5b7886b359b65584fb0c2ce214650199 debian-503-i386-CD-1.iso
+
+对已下载了的iso文件，运行md5sum命令
+
+$ md5sum debian-503-i386-CD-1.iso                                         
+28a7d1db970d976ae789386f524ad183  debian-503-i386-CD-1.iso                
+
+因为 5b7886b359b65584fb0c2ce214650199 和 28a7d1db970d976ae789386f524ad183 不一
+致，所以无法正常挂载镜像安装系统
+[125R93605-5324]
+
+好文,顶一下
+(14)
+93.3%
+文章真差,踩一下
+(1)
+6.7%
+时间:2009-11-15 21:55来源:Linuxeden 作者:c-aries 点击:次
+------分隔线----------------------------
+
+  • 上一篇：中文定制版Ubuntu的最新动向
+  • 下一篇：Mozilla Firefox 3.6下使用Java浏览器插件
+
+  • 我要评论!
+  • 收藏
+  • 挑错
+  • 推荐
+  • 打印
+
+最新评论查看所有评论
+
+发表评论查看所有评论
+    请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。
+    评价: (*)[cmt-neu]中立 ( )[cmt-good]好评 ( )[cmt-bad]差评
+    [                                                            ]
+    [                                                            ]
+    [                                                            ]
+    [                                                            ]
+    [                                                            ]
+    表情:
+      □ (*)[ico-mo]
+      □ ( )[ico-mo]
+      □ ( )[ico-mo]
+      □ ( )[ico-mo]
+      □ ( )[ico-mo]
+      □ ( )[ico-mo]
+      □ ( )[ico-mo]
+    用户[        ]闪电注册密码[        ] 验证码:[    ][vdimgck] [ ] 匿名?
+    发表
+   
+    登陆后评论,有机会获得精彩评论大奖.
+
+把开源带在你的身边-精美linux小纪念品
+
+文章分类
+        新闻动态企鹅看世界新手入门数据库类系统安全系统管理网络管理使用经验编程
+        开发解决方案硬件相关 Unix家族观点评论人物介绍技术前沿专题 Eden团队出品
+        开源美图
+
+软件导航
+      □ 发行版类内核相关服务器类模拟仿真文件管理
+      □ 系统安全多媒体类硬件工具编程开发网络热门
+      □ 杂类工具网络工具图形图像阅读编辑书籍资料
+      □ 游戏软件办公软件数据备份中文相关系统管理
+      □ 科学计算数据库类 XWin系统
+
+论坛导航
+        初级应用-> 新手入门 | 服务器应用 | 中文化 | 软件使用交流 | 硬件驱动 | 
+        图片秀 | 茶馆
+        高级应用->数据库 | 系统安全 | 嵌入式应用|
+        编程开发-> C/C++(STL/boost) | 内核 | RAD|Perl/PHP/Python | JAVA/XML | 
+        Shell
+        发行版-> Redhat和Fedora | Debian | Gentoo | Slackware/Suse | Mandrake/
+        Mandriva
+        Unix ->FreeBSD | Solaris | 其他Unix讨论
+
+论坛精华
+
+一周热点
+

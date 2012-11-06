@@ -1,0 +1,29 @@
+set sendmail = "/usr/bin/esmtp -v -X ~/log/esmtplog"                                         
+set beep = yes                                                                               
+set copy = yes                                                                               
+set fast_reply = yes            #在回复邮件的时候，不用自己输入地址和标题                    
+set folder = ~/Mail/c-aries                #邮件存放目录                                     
+set include = yes                #回信时是否包含原文                                         
+set mbox = "=inbox"                                                                          
+set mbox_type = Maildir                                                                      
+set pager_context = 1                                                                        
+set pager_index_lines = 16                                                                   
+set pgp_verify_sig = no                                                                      
+set postponed = "=postponed"                                                                 
+set record = "=sent"                                                                         
+set locale = "zh_CN"                                                                         
+set sendmail_wait = 0                                                                        
+set status_on_top = no                                                                       
+set to_chars = "+TCEL"                                                                       
+set pager_stop                                                                               
+set editor="emacs -nw"    #使用emacs编辑器，可以改成vim，不填写则为nano                      
+subscribe linux-kernel@vger.kernel.org #订阅了的邮件列表                                     
+subscribe debian-devel@lists.debian.org #订阅了的邮件列表                                    
+mailboxes 'echo ~/Mail/c-aries/*'                                                            
+my_hdr From: c-aries <babyaries2@gmail.com>                                                   
+my_hdr Reply-To: c-aries <babyaries2@gmail.com>                                               
+set sort = threads                                                                           
+set sort_aux = date-sent                                                                     
+                                                                                             
+macro index G "!fetchmail -av"        #这俩行定义了热键G激活fetchmail来收邮件                
+macro pager G "!fetchmail -av"        #实际上我喜欢将fetchmail加入开机启动脚本               

@@ -1,0 +1,7 @@
+identity babyaries2@gmail.com                                                                
+hostname smtp.gmail.com:587                                                                  
+username="babyaries2@gmail.com" #邮箱帐号                                                    
+password="[passwd]" #邮箱密码，请自己修改其内容                                              
+starttls =enabled                                                                            
+mda = "/usr/bin/procmail -d %T" #new                                                         
+default                                                                                      

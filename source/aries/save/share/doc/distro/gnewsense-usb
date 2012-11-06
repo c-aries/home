@@ -1,0 +1,256 @@
+Location: http://www.gnewsense.org/Documentation/BootingFromUSB                                         
+Login
+Search: [                    ] [Search Titles] [Search Full Text]
+gNewSense Logo
+
+Booting From USB
+
+  • PmwikiVsMoin
+  • RecentChanges
+  • FindPage
+  • HelpContents
+  • Main/WikiHome
+  • BootingFromUSB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  • Immutable Page
+  • Comments
+  • Info
+  • Attachments
+  • More Actions: [Raw Text                ] [Do]
+
+Translations: Deutsch [de] español [es] français [fr] italiano [it]
+
+Side Bar (edit)
+
+  • Home
+      □ Download gNewSense
+      □ Join gNewSense Community
+      □ Who Hacks What
+      □ FAQ
+      □ Get Help
+      □ Documentation
+  • How to help
+      □ Report/Fix a bug
+      □ Builder
+      □ Create Your Own Distro
+  • Translations
+
+Español Français Italiano
+
+If you got a USB memory stick you can boot gNewSense live as with the cd. What you will need:
+
+  • A USB stick 1 GB+
+  • A motherboard that support booting from removables.
+  • A computer with usb ports with GNU/Linux or Windows running.
+
+Make your stick bootable
+
+This will guide you to make the stick bootable. We are going to use syslinux for it.
+
+Install syslinux
+
+Choose the operating system you run. GNU/Linux or Windows.
+
+GNU/Linux
+
+Syslinux may already be installed in your system. Type syslinux in a terminal. If the command is not
+found you have to install it from your distribution's repository. On a Debian/Ubuntu system this is
+done like this:
+
+apt-get install syslinux
+
+You can also run the following commands in a terminal:
+
+wget http://www.kernel.org/pub/linux/utils/boot/syslinux/syslinux-3.83.tar.bz2
+tar -xvjf syslinux-3.83.tar.bz2
+cd syslinux-3.83/unix
+
+Now you got syslinux ready to use. Keep the terminal window up so you can use it later.
+
+Windows
+
+Download a syslinux zip-file from http://www.kernel.org/pub/linux/utils/boot/syslinux/.
+Unpack it.
+Have up your terminal by clicking Start and then Run, type cmd and press Enter.
+Cd to the directory where you unpacked syslinux, cd Desktop should work if you unpacked it to your
+desktop and if the terminal started in your user directory.
+Type cd syslinux-3.83 or whatever version you have downloaded.
+Finally type cd win32 to get into the windows binary.
+Now you got syslinux ready to use. Keep the terminal window up so you can use it later.
+
+Install mbr
+
+GNU/Linux
+
+mbr may already be installed in your system. Type install-mbr in a root terminal. If the command is not
+found you have to install it from your distribution's repository. On a Debian/Ubuntu system this is
+done like this:
+
+apt-get install mbr
+
+Partition the stick
+
+Usually USB sticks are already partitioned with a FAT partition. If your USB stick is completely empty,
+you need to use fdisk to partition it:
+
+mocca:~# fdisk /dev/sdf
+Device contains neither a valid DOS partition table, nor Sun, SGI or OSF disklabel
+Building a new DOS disklabel with disk identifier 0x85934366.
+Changes will remain in memory only, until you decide to write them.
+After that, of course, the previous content won't be recoverable.
+
+Warning: invalid flag 0x0000 of partition table 4 will be corrected by w(rite)
+
+Command (m for help): p
+
+Disk /dev/sdf: 2021 MB, 2021654528 bytes
+63 heads, 62 sectors/track, 1010 cylinders
+Units = cylinders of 3906 * 512 = 1999872 bytes
+Disk identifier: 0x85934366
+
+   Device Boot      Start         End      Blocks   Id  System
+
+Command (m for help): n
+Command action
+   e   extended
+   p   primary partition (1-4)
+p
+Partition number (1-4): 1
+First cylinder (1-1010, default 1): 
+Using default value 1
+Last cylinder or +size or +sizeM or +sizeK (1-1010, default 1010): 
+Using default value 1010
+
+Command (m for help): t
+Selected partition 1
+Hex code (type L to list codes): b
+Changed system type of partition 1 to b (W95 FAT32)
+
+Command (m for help): a
+Partition number (1-4): 1
+
+Command (m for help): p
+
+Disk /dev/sdf: 2021 MB, 2021654528 bytes
+63 heads, 62 sectors/track, 1010 cylinders
+Units = cylinders of 3906 * 512 = 1999872 bytes
+Disk identifier: 0x85934366
+
+   Device Boot      Start         End      Blocks   Id  System
+/dev/sdf1   *           1        1010     1972499    b  W95 FAT32
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+
+WARNING: If you have created or modified any DOS 6.x
+partitions, please see the fdisk manual page for additional
+information.
+Syncing disks.
+mocca:~# 
+
+Format the stick
+
+Again, usually USB sticks are already formatted. If you want to-reformat it, you can do it like this:
+
+In GNU/Linux:<<BR>>mkfs.vfat /dev/sdf1
+
+Run syslinux
+
+Run the syslinux command shown below, in the window we set up earlier, assuming drive name is sdb1 or
+F:.
+
+In GNU/Linux:<<BR>>syslinux -s /dev/sdb1
+
+$ sudo syslinux -s /dev/sdb1
+sh: mcopy: command not found
+syslinux: failed to create ldlinux.sys
+$ c-aries
+= =b > install mtools
+$
+
+In Windows:<<BR>>syslinux.exe -s -m F:
+
+Install the master boot record
+
+The master boot record must be installed on
+
+In GNU/Linux:<<BR>>install-mbr /dev/sdb
+
+Mount the stick
+
+In the most modern operating systems USB memory sticks get mounted automatically.
+
+If not and if you use a GNU/Linux distribution run mount: mount /dev/sdb1 /media/usb
+You have to run the command as root or sudo. You also have to create the directory usb with mkdir /
+media/usb, or choose a mount point at your opinion.
+The device name may also be different. Run dmesg | tail in a terminal after you have plugged in the
+stick.
+Look for [sdb] or any similar. Add a 1 to it so it knows it is the first partition.
+
+Copy files from the gNewSense iso
+
+Download a gNewSense iso from http://cdimage.gnewsense.org/ You can burn the iso to a cd and copy the
+files to the stick, but it is faster to mount the iso.
+
+In GNU/Linux:<<BR>>mkdir /media/iso
+mount -oloop /path/to/gnewsense-livecd-deltah-2.3.iso /media/iso
+Again, it has to be done as root or sudo.
+
+In Windows you can use a program called Virtual CD-ROM Control Panel. Download it, unpack it and read
+it's readme for how to use it.
+http://download.microsoft.com/download/7/b/6/7b6abd84-7841-4978-96f5-bd58df02efa2/
+winxpvirtualcdcontrolpanel_21.exe
+
+Copy the casper directory to the memory stick. Copy the content of the isolinux directory to the memory
+stick. Rename isolinux.bin to syslinux.bin. Rename isolinux.cfg to syslinux.cfg.
+
+In GNU/Linux:<<BR>>cp -r /media/iso/casper/ /media/usb/
+cp /media/iso/isolinux/* /media/usb/
+mv /media/usb/isolinux.bin /media/usb/syslinux.bin
+mv /media/usb/isolinux.cfg /media/usb/syslinux.cfg
+
+Unmount the memory stick to write cache. In GNU/Linux:<<BR>>umount /media/usb
+
+Unmount the ISO image. In GNU/Linux:<<BR>>umount /media/iso
+
+Memory sticks not automounted-fix
+
+If you installed gNewSense from the memory stick the same memory stick is not automatically mounted.
+This is caused by the stick being added to the fstab file. Plug in your memory stick and check in dmesg
+what it got for a device name.
+
+ dmesg | tail
+
+Then edit fstab and remove the line containing the device name.
+
+ sudo gedit /etc/fstab
+
+For example: /dev/sdb1 /media/cdrom0 udf,iso9660 user,noauto,exec,utf8 0 0
+
+Documentation/BootingFromUSB (last edited 2010-09-08 11:57:51 by samgee2)
+
+gNewSense is a project developed by volunteers all over the world and it's supported by the Free
+Software Foundation.
+
+The content in this Web site can be used as follows:
+
+All documentation is available under the terms of the GFDL with no invariant sections. (note on the
+license)
+
+Artwork is Free Cultural Work and is available under the terms of the cc-by-sa license.
+
+  • Immutable Page
+  • Comments
+  • Info
+  • Attachments
+  • More Actions: [Raw Text                ] [Do]
+
+  • MoinMoin Powered
+  • Python Powered
+  • GPL licensed
+  • Valid HTML 4.01
+

@@ -1,0 +1,9 @@
+# file system  mount-point  type   options         dump  fsck order
+proc            /proc           proc    defaults        0       0
+/dev/sda4	/               ext3    defaults	0       1
+/dev/sda1	/home           ext3    defaults        0       2
+/dev/sda3	/media/exp      ext3    defaults        0       2
+/dev/sda2	swap            swap    pri=1           0       0
+sysfs		/sys		sysfs	defaults	0	0
+devpts		/dev/pts	devpts	gid=4,mode=620  0	0
+shm	        /dev/shm	tmpfs	defaults        0	0

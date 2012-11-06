@@ -1,0 +1,7 @@
+default		0
+timeout		3
+
+title		CGOS - \"C-aries\' GNU Operating System\"
+root		(hd0,3)
+kernel		/boot/vmlinuz-2.6.31-libre root=/dev/sda4 ro vga=786
+quiet

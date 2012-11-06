@@ -1,0 +1,46 @@
+Aries' GNU System								-*- outline -*-
+
+* 原理
+每个软件包的起源是url
+
+* source文件夹规范
+以aries软件包为例
+~/source/
+~/source/aries/
+~/source/aries/url
+~/source/aries/repo
+~/source/aries/README
+~/source/aries/[save]/
+~/source/aries/info/
+~/source/aries/info/install.sh
+~/source/aries/info/url
+~/source/aries/info/repo
+~/source/aries/info/README
+~/source/aries/info/[save]/
+save为可选的备份文件夹
+注意:
+1. url最后一行要有回车
+2. url中可以为本地文件名
+
+* 技巧
+** 安装A'GS
+在新的硬盘中，分一个小区大约20G，将Debian发行版安装在这个分区中。
+利用这个Debian分区，编译安装A'GS，参考LFS
+然后编译安装好的A'GS又可以编译安装出另一个A'GS
+** 使用source-backup.sh更新两部电脑的A'GS
+复制用source-backup.sh备份好的文件到另一部电脑，解压后用cp -uR命令更新source文件夹
+** 备份source文件夹，包括tarball
+$ source-backup.sh list
+启动生成_完整_备份清单功能
+已生成/tmp/backup-source-list-2010-11-25-1290652500
+$ tar cf - -T /tmp/backup-source-list-2010-11-25-1290652500 | (cd ~/download/t && tar xf -)
+** 检查备份source文件夹的文件大小排名
+$ find -type f | xargs du -h | grep ^[0-9]*M | sort -n -r
+18M	./gnumeric/gnumeric-1.10.11.tar.bz2
+14M	./wxwidgets/wxWidgets-2.8.11.tar.bz2
+$ 
+** 根据url下载所有的文件
+以下修改"bash"为想要继续下载的文件夹, rate="5k"为下载限速，要下载所有的软件可以在if [ x"$name" ...]中添加'! :'，即if [ ! : -a x"$name" ...]
+rate="5k" ;flag=""; cd ~/source; for name in *; do if [ x"$name" != x"bash" -a x"$flag" = x"" ] ; then continue; fi; flag="1"; cd $name; echo "[Download] `pwd`"; pwd > ~/.tmp ; wget --limit-rate="$rate" -c -i url; if [ -d info ] ; then cd info; wget --limit-rate="$rate" -c -i url; fi; cd ~/source; done
+** 整理url，包括添加文件尾的回车和url内容排序删除重复
+cd ~/source; for name in *; do cd $name; pwd; echo >> url; cat url | sort | uniq | sed -e '/^$/d' >> url.$$; mv url.$$ url; cd info; pwd; echo >> url; cat url | sort | uniq | sed -e '/^$/d' >> url.$$; mv url.$$ url; cd ~/source; done

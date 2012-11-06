@@ -1,0 +1,217 @@
+Location: http://www.linuxeden.com/html/softuse/20090927/68258.html                                
+                                Linuxeden是中国最大的开源资讯门户                                 
+                                                                                                  
+                                               • 首页                                             
+                                                                                                  
+                                               • 新闻                                             
+                                                                                                  
+                                               • 软件                                             
+                                                                                                  
+                                               • 博客                                             
+                                                                                                  
+                                               • 论坛                                             
+                                                                                                  
+                                               • 商城                                             
+                                                                                                  
+                                               • 人才                                             
+                                                                                                  
+                                               • 广告                                             
+                                                                                                  
+                                               • 联系                                             
+                                                                                                  
+                                               • 投稿                                             
+                                                                                                  
+                                              • 产品库                                            
+                                                                                                  
+                                         • [mobile]3G Eden                                        
+                                                                                                  
+                                           • [rsslogo]RSS                                         
+                                                                                                  
+                                               • 入门                                             
+                                               • 前沿                                             
+                                             • 系统管理                                           
+                                             • 网络管理                                           
+                                             • 使用经验                                           
+                                             • 编程开发                                           
+                                               • 安全                                             
+                                             • 解决方案                                           
+                                             • 硬件相关                                           
+                                               • Unix                                             
+                                              • 数据库                                            
+                                              • 观点                                              
+                                              • 人物                                              
+                                               • 嵌入                                             
+                                                                                                  
+                                               • 新手                                             
+                                              • 服务器                                            
+                                              • 中文化                                            
+                                              • RedHat                                            
+                                              • Fedora                                            
+                                              • Debian                                            
+                                              • Ubuntu                                            
+                                             • Mandriva                                           
+                                              • Mysql                                             
+                                               • php                                              
+                                              • Shell                                             
+                                               • C++                                              
+                                            • Turbomail                                           
+                                                                                                  
+位置: Linuxeden主页>使用经验>
+
+使用mutt代替evolution
+
+　　
+由于我邮箱中的邮件已经超过1万封，用evolution pop邮件到本地，evolution会非常卡，所以考虑使用其它的
+邮件客户端
+mutt+fetchmail+esmtp是个不错的选择，在管理16400封邮件的情况下仍非常健壮、反应快速，而且配置简单
+
+截图如下：
+
+[1254040045-3N9]  
+
+以下是我的配置，mutt为邮件客户端，通过fetchmail接收邮件，通过esmtp发送邮件
+
+$ cat /home/c-aries/.muttrc                                                                  
+set sendmail = "/usr/bin/esmtp -v -X ~/log/esmtplog"                                         
+set beep = yes                                                                               
+set copy = yes                                                                               
+set fast_reply = yes            #在回复邮件的时候，不用自己输入地址和标题                    
+set folder = ~/Mail/c-aries                #邮件存放目录                                     
+set include = yes                #回信时是否包含原文                                         
+set mbox = "=inbox"                                                                          
+set mbox_type = Maildir                                                                      
+set pager_context = 1                                                                        
+set pager_index_lines = 16                                                                   
+set pgp_verify_sig = no                                                                      
+set postponed = "=postponed"                                                                 
+set record = "=sent"                                                                         
+set locale = "zh_CN"                                                                         
+set sendmail_wait = 0                                                                        
+set status_on_top = no                                                                       
+set to_chars = "+TCEL"                                                                       
+set pager_stop                                                                               
+set editor="emacs -nw"    #使用emacs编辑器，可以改成vim，不填写则为nano                      
+subscribe linux-kernel@vger.kernel.org #订阅了的邮件列表                                     
+subscribe debian-devel@lists.debian.org #订阅了的邮件列表                                    
+mailboxes 'echo ~/Mail/c-aries/*'                                                            
+my_hdr From: c-aries<babyaries2@gmail.com>                                                   
+my_hdr Reply-To: c-aries<babyaries2@gmail.com>                                               
+set sort = threads                                                                           
+set sort_aux = date-sent                                                                     
+                                                                                             
+macro index G "!fetchmail -av"        #这俩行定义了热键G激活fetchmail来收邮件                
+macro pager G "!fetchmail -av"        #实际上我喜欢将fetchmail加入开机启动脚本               
+$                                                                                            
+
+$ cat /home/c-aries/.fetchmailrc                                                             
+#set daemon 5                                                                                
+defaults                                                                                     
+mda "/usr/bin/esmtp -f %F %T"                                                                
+                                                                                             
+poll pop.gmail.com                                                                           
+protocol pop3                                                                                
+port 995                                                                                     
+                                                                                             
+uidl                                                                                         
+                                                                                             
+user "babyaries2" #邮箱帐号                                                                  
+password "********" #邮箱密码，请自己修改其内容                                              
+                                                                                             
+keep                                                                                         
+                                                                                             
+ssl sslcertck                                                                                
+$                                                                                            
+
+$ cat /home/c-aries/.esmtprc                                                                 
+identity babyaries2@gmail.com                                                                
+hostname smtp.gmail.com:587                                                                  
+username="babyaries2@gmail.com" #邮箱帐号                                                    
+password="********" #邮箱密码，请自己修改其内容                                              
+starttls =enabled                                                                            
+mda = "/usr/bin/procmail -d %T" #new                                                         
+default                                                                                      
+$                                                                                            
+
+Tips
+
+根据以上配置
+
+1) 在shell输入mutt，进入mutt的主界面后，按G键即能pop邮件到本地PC
+2) 凡是.muttrc中写明的邮件列表，在mutt主界面的相应邮件项中，按L键即能回复到邮件列表
+
+网络参考资源
+
+ 1. FreeBSD邮件用户代理
+http://www.freebsd.org/doc/zh_CN/books/handbook/mail-agents.html
+
+2. 王垠 Mutt email程序使用入门
+http://www.kreny.com/docs/mutt.htm
+
+ 3. 通过Mutt+Fetchmail+esmtp架设个人邮件系统
+http://bbs.linuxpk.com/thread-9227-1-1.html
+
+顶一下
+(5)
+100%
+踩一下
+(0)
+0%
+时间:2009-09-27 16:54来源: 作者:c-aries 点击:次
+------分隔线----------------------------
+
+  • 上一篇：口袋里的安全：ARM中的OpenBSD
+  • 下一篇：没有了
+
+  • 我要评论!
+  • 收藏
+  • 挑错
+  • 推荐
+  • 打印
+
+最新评论查看所有评论
+
+发表评论查看所有评论
+    请自觉遵守互联网相关的政策法规，严禁发布色情、暴力、反动的言论。
+    评价: (*)[cmt-neu]中立 ( )[cmt-good]好评 ( )[cmt-bad]差评
+    [                                                            ]
+    [                                                            ]
+    [                                                            ]
+    [                                                            ]
+    [                                                            ]
+    表情:
+      □ (*)[ico]
+      □ ( )[ico]
+      □ ( )[ico]
+      □ ( )[ico]
+      □ ( )[ico]
+      □ ( )[ico]
+      □ ( )[ico]
+    用户[        ]闪电注册密码[        ] 验证码:[    ][vdimgck] [ ] 匿名?
+    发表
+   
+    登陆后评论,有机会获得精彩评论大奖.
+
+把开源带在你的身边-精美linux小纪念品
+
+文章分类
+        新闻动态企鹅看世界新手入门数据库类系统安全系统管理网络管理使用经验编程开发解决方案硬件相关
+        Unix家族观点评论人物介绍技术前沿专题 Eden团队出品开源美图
+
+软件导航
+      □ 发行版类内核相关服务器类模拟仿真文件管理
+      □ 系统安全多媒体类硬件工具编程开发网络热门
+      □ 杂类工具网络工具图形图像阅读编辑书籍资料
+      □ 游戏软件办公软件数据备份中文相关系统管理
+      □ 科学计算数据库类 XWin系统
+
+论坛导航
+        初级应用-> 新手入门 | 服务器应用 | 中文化 | 软件使用交流 | 硬件驱动 | 图片秀 | 茶馆
+        高级应用->数据库 | 系统安全 | 嵌入式应用|
+        编程开发-> C/C++(STL/boost) | 内核 | RAD|Perl/PHP/Python | JAVA/XML | Shell
+        发行版-> Redhat和Fedora | Debian | Gentoo | Slackware/Suse | Mandrake/Mandriva
+        Unix ->FreeBSD | Solaris | 其他Unix讨论
+
+论坛精华
+
+一周热点
+

@@ -1,0 +1,6 @@
+TERM=linux
+TZ='Asia/Shanghai'
+LANG='zh_CN.utf8'
+LC_ALL=$LANG
+
+export TERM TZ LANG LC_ALL

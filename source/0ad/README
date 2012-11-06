@@ -1,0 +1,9 @@
+sudo apt-get install subversion build-essential cmake libsdl1.2-dev zlib1g-dev libpng12-dev libgamin-dev libwxgtk2.8-dev libboost-dev libboost-signals-dev libboost-filesystem-dev libopenal-dev libalut-dev libvorbis-dev libogg-dev libxml2-dev libcurl4-gnutls-dev zip libenet-dev binutils-dev libdevil-dev
+
+cd 0ad/build/workspaces
+./update-workspaces.sh -j3
+cd gcc
+make CONFIG=Release -j3
+binaries/system/pyrogenesis
+
+http://trac.wildfiregames.com/wiki/BuildInstructions#Linux

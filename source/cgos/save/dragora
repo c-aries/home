@@ -1,0 +1,59 @@
+			-*- outline -*-
+* boot utils
+busybox syslinux install-mbr linux-libre
+initrd.img => cpio + gz
+$ ls -l /sbin/mkfs.vfat 
+lrwxrwxrwx 1 root root 7 2011-01-08 19:58 /sbin/mkfs.vfat -> mkdosfs
+$ 
+* about package mannagement system
+dragin dragout dragup dragbuild makepkg
+* choose system install time language
+* keyborad type
+** install kbd package
+$ pwd
+/home/c-aries/source/kbd
+$ cat url 
+http://www.kernel.org/pub/linux/utils/kbd/kbd-1.12.tar.bz2
+http://www.linuxfromscratch.org/patches/lfs/6.3/kbd-1.12-backspace-1.patch
+http://www.linuxfromscratch.org/patches/lfs/6.3/kbd-1.12-gcc4_fixes-1.patch
+$ cat kbd-1.12.aries.patch 
+diff -ur kbd-1.12/configure kbd-1.12.new/configure
+--- kbd-1.12/configure	2011-01-11 18:28:45.000000000 +0800
++++ kbd-1.12.new/configure	2011-01-11 18:27:16.000000000 +0800
+@@ -155,7 +155,7 @@
+ #include <libintl.h>
+ main(int a, char **v){
+   if (a == -1)  /* false */
+-        gettext("There is no gettext man page\n");
++        gettext("There is no gettext man page\\n");
+   exit(0);
+ }
+ ' > conftest.c
+$
+** loadkeys command
+$ su -c "loadkeys us.map.gz"
+Loading /usr/share/keymaps/i386/qwerty/us.map.gz
+$
+** /etc/rc2.d/
+e.g. write a bash script in /etc/rc2.d/S20keymap
+$ cat /etc/rc2.d/S20keymap
+#! /bin/sh
+loadkeys us.map.gz
+$
+* mdev
+BusyBox v1.9.2 (2009-08-24 18:40:29 ART) multi-call binary
+
+Usage: mdev [-s]
+
+	-s	Scan /sys and populate /dev during system boot
+
+Called with no options (via hotplug) it uses environment variables
+to determine which device to add/remove.
+= = $ mdev -s
+
+* swap partition
+mkswap -v1 -c /dev/sdaX
+$ printf "%-15s %-15s %-11s %-16s %-5s %s\n" /dev/sda2 swap swap defaults 0 0
+/dev/sda2       swap            swap        defaults         0     0
+$ printf "%-15s %-15s %-11s %-16s %-5s %s\n" /dev/sda2 swap swap defaults 0 0 > /tmp/fstab
+swapon /dev/sdaX
