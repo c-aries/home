@@ -1,0 +1,40 @@
+>> Documentation/DocBook/kgdb/usingKDB.html
+# echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
+or
+# echo kbd > /sys/module/kgdboc/parameters/kgdboc 
+change to tty, alt+printscreen+g
+!! CONFIG_KGDB_KDB=y, if not, there is no kernel/debug/kdb/*.o
+======= below is kgdb ======
+CONFIG_KGDB
+CONFIG_DEBUG_INFO
+CONFIG_FRAME_POINTER
+CONFIG_KGDB_SERIAL_CONSOLE
+CONFIG_DEBUG_RODATA=n
+
+CONFIG_KGDB_KDB
+
+CONFIGK_KALLSYMS
+CONFIGK_KALLSYMS_ALL
+
+[KGDB]
+kgdboc=ttyS0,115200 # or
+echo ttyS0 > /sys/module/kgdboc/parameters/kgdboc
+echo g > /proc/sysrq-trigger
+
+kgdbcon # or
+Use sysfs before configuring an I/O driver
+echo 1 > /sys/module/kgdb/parameters/kgdb_use_con 
+
+ Example (using a directly connected port):
+
+    % gdb ./vmlinux
+    (gdb) set remotebaud 115200
+    (gdb) target remote /dev/ttyS0
+    
+
+Example (kgdb to a terminal server on TCP port 2012):
+
+    % gdb ./vmlinux
+    (gdb) target remote 192.168.2.2:2012
+[KDB]
+echo kbd > /sys/module/kgdboc/parameters/kgdboc
