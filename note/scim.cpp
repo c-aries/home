@@ -1,3 +1,7 @@
+GenericTableContent::load_text (FILE *fp);
+GenericTableLibrary::load_header ();
+~/source/scim/scim-tables-0.5.11/src/scim_generic_table.cpp
+
 class RawCodeFactory : public IMEngineFactoryBase
 {
   friend class RawCodeInstance;
