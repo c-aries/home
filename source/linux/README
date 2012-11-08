@@ -1,0 +1,24 @@
+Build Debian Kernel
+
+# make -f debian/rules clean
+$ fakeroot make -f debian/rules.gen setup_i386_none_686
+
+$ emacs debian/build/config.i386_none_686
+
+/******
+# cd debian/build/build_i386_none_686
+# make menuconfig
+# cd ../../..
+******/
+
+$ fakeroot make -f debian/rules.gen -j 2 binary-arch_i386_none_686 binary-indep
+$ fakeroot make -f debian/rules.gen -j 2 binary-arch_i386_none_real
+$ fakeroot make -f debian/rules.gen -j 2 binary-arch_i386_real
+
+then build kbuild
+http://wiki.debian.org/HowToRebuildAnOfficialDebianKernelPackage?action=AttachFile&do=view&target=build-linux-kbuild.sh
+
+./build-linux-kbuild.sh的过程中会因为../../include/generated/autoconf.h文件缺失而中断
+复制好generated文件夹后
+$ cd linux-kbuild-2.6-2.6.39
+$ dpkg-buildpackage -us -uc
