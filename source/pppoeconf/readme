@@ -1,0 +1,46 @@
+1.图形界面上,运行pppoeconf设置帐号、密码
+
+sudo /usr/sbin/pppoeconf
+hz88389370@163.gd
+07528389370
+
+2.运行pon dsl-provider装载模块
+
+----------------------------------------------------------------------
+
+稳定运行的方法
+进入桌面环境，断开右上角的“启用互联网”
+进入ctrl+alt+f1，运行pppoeconf
+
+-----------------------------------------------------------------------
+
+用ADSL上网设置比较简单的:
+
+首次拨号：
+打开应用程序--系统工具--终端(如果应用程序中没有系统工具菜单项,打开系统设置-主菜单添加应用程序菜单项即可),打开终端，输入命令：
+sudo pppoeconf
+
+然后按照提示一步步next就行了，中途需要输入adsl用户名和密码。 如果你已经有一个PPPoE连接，会问你要不要修改。
+常见选项：是不是用'noauth' 和 'defaultroute' 选项同时移去'nodetach' － 选 "Yes"。
+DNS － 选 “Yes”。
+MSS － 选 “Yes”。
+设置完成后会提示你,是否启动系统时自动连接,选择是就可以以后每次登陆ubuntu都会自动拨通上网了。
+以后，要手工拨号，打开终端，输入命令：
+sudo pon dsl-provider
+
+手工断线：
+sudo poff
+
+查看连接情况：
+plog 和 ifconfig ppp0
+
+ifconfig ppp0 可查询本机的上网IP。
+
+一般情况下，一次拨通后以后登陆ubuntu都会自动拨通上网的了，不用每次都输入命令拨号。
+
+如果没有自动连接，可能是您刚才的配置文件没有正确保存，那我们可以这样做：
+
+打开/etc/ppp/peers/dsl-provider后，手工加了一行password ****的记录后，下次就自动连接了。
+
+解决办法也很简单，sudo pon dsl-provider之前，先sudo ifdown eth0，然后sudo ifup eth0即可
+参考资料：http://forum.ubuntu.org.cn/
