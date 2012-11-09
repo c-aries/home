@@ -1,0 +1,19 @@
+sudo /sbin/fbtruetype -x 300 -y 6 'Hello World'
+sudo /sbin/fbmngplay -b -x 594 -y 0 /home/c-aries/download/sister.mng 
+
+unicode support
+halt tty switch supportpatch -p1 < ../bootsplash-3.1.c-aries.diff
+
+# mkinitramfs -o initrd.img.gz
+# gunzip initrd.img.gz
+# mkdir dest
+# cd dest
+# cpio -idvm < ../initrd.img
+# cd ..
+# splash -s -f /etc/bootsplash/themes/gnu/config/800x600.cfg > tmp
+# mv tmp dest/bootsplash 
+# gen_init_cpio list > tmp
+# tmp /boot/initrd.img-splash 
+# mv tmp /boot/initrd.img-splash 
+
+convert -delay 20 anim*.png anim.mng
