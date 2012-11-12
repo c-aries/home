@@ -1,0 +1,12 @@
+$ pwd
+/home/c-aries/source/aufs/aufs2-standalone
+$ git branch -a
+$ git checkout remotes/origin/aufs2.2-36 -b now
+$ pwd
+/home/c-aries/source/linux/linux-2.6.36
+$ patch -p1 < ~/source/aufs/aufs2-standalone/proc_map.patch 
+- copy ./{Documentation,fs,include/linux/aufs_type.h} files to your
+  kernel source tree. Never copy ./include/linux/Kbuild.
+- enable CONFIG_EXPERIMENTAL and CONFIG_AUFS_FS, you can select either
+  =m or =y.
+- install the header files too by "make headers_install".

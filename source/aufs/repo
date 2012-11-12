@@ -1,0 +1,3 @@
+git clone git://git.c3sl.ufpr.br/aufs/aufs2-standalone.git
+git clone git://git.c3sl.ufpr.br/aufs/aufs2-2.6.git
+git clone git://git.c3sl.ufpr.br/aufs/aufs2-util.git
