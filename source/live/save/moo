@@ -1,0 +1,171 @@
+#!/bin/bash
+
+# Configurable variables
+MAXLOOPS=8	# Maximum number of loop devices to allow
+MAXPCT=90	# Begin deleting files on /boot when this % is used
+CLEANDOC="yes"	# Clean /usr/share/doc?
+CLEANMAN="yes"	# Clean /usr/share/man?
+CLEANINF="yes"	# Clean /usr/share/info?
+
+# Do not edit anything below here!
+let MAXLOOPS=$MAXLOOPS-1
+
+EXCLUDES=/tmp/moo.excludes
+INCLUDES=/tmp/moo.includes
+EXLIST="^/cow/var/log/ ^/cow/var/lock/ ^/cow/tmp/ ^/cow/var/tmp/ "
+EXLIST+="^/cow/sys/ ^/cow/dev/ ^/cow/cow/ ^/cow/proc/ ^/cow/var/run/ "
+EXLIST+="^/cow/casper/ /.joe state$ ~$ /.bash_history$ /.lesshst$ "
+EXLIST+="^/cow/etc/mtab$ ^/cow/etc/.wh.mtab~ ^/cow/var/cache/apt/archives/ "
+EXLIST+="^/cow/var/lib/dhcp./ ^/cow/var/lib/urandom/ "
+EXLIST+="^/cow/var/lib/dpkg/.*-old$ ~$"
+EXBASE="/var/log/* /var/lock/* /tmp/* /var/tmp/* /sys/* /dev/* *~ "
+EXBASE+="/cow/* /proc/* /var/run/* /etc/mtab /boot/* .lesshst .bash_history
+"
+EXBASE+="/var/cache/apt/archives/*.deb /var/lib/dhcp?/* "
+EXBASE+="/var/lib/urandom/* /var/lib/dpkg/*-old "
+EXBASE+="/casper/* /var/cache/apt/archives/partial/*.deb"
+
+echo "Checking free space on /boot..."
+while [ $(df /boot | grep boot | tr -s ' ' | cut -d' ' -f5 | sed -e s/%//) \> $MAXPCT ]; do
+  in_use=0
+  zap_file=$(ls -c /boot/casper/*.squashfs | grep -v /base.squashfs | tail
+  -n1 | sed -e s%/boot/casper/%%)
+  grep $zap_file /boot/casper/order.lst && in_use=1;
+  if [ $in_use == 1 ]; then
+    echo "Unable to zap /boot/casper/$zap_file!"
+    echo "Please free up some space on /boot then try again"
+    exit
+  fi
+  echo "Zapping $zap_file"
+  rm /boot/casper/$zap_file
+done
+
+zerosize() {
+  find $* | while read file; do
+    echo -n "."
+    rm $file
+    touch $file
+  done
+}
+
+if [ "$CLEANDOC" == "yes" ]; then
+  echo -n "Cleaning /usr/share/doc"
+  zerosize /usr/share/doc -type f -size +1b
+  zerosize /usr/share/doc -type l
+  echo ""
+fi
+if [ "$CLEANMAN" == "yes" ]; then
+  echo -n "Cleaning /usr/share/man"
+  zerosize /usr/share/man -type f -size +1b
+  zerosize /usr/share/man -type l
+  echo ""
+fi
+if [ "$CLEANINF" == "yes" ]; then
+  echo -n "Cleaning /usr/share/info"
+  zerosize /usr/share/info -type f -size +1b
+  zerosize /usr/share/info -type l
+  echo ""
+fi
+
+if [ -e /boot/casper/snapshot.ver ]; then
+  let version=$(cat /boot/casper/snapshot.ver)+1
+else
+  echo "Creating initial base image."
+  mkdir -p /boot/casper
+  mkdir -p /cow/
+  mkdir -p /casper/
+  mksquashfs / /boot/casper/base.squashfs -e $EXBASE
+  echo "base.squashfs" > /boot/casper/order.lst
+  echo "0" > /boot/casper/snapshot.ver
+  exit
+fi
+mount -o remount,rw /boot
+echo $version > /boot/casper/snapshot.ver
+exit
+let num_branches=$(/usr/sbin/unionctl / --list | wc -l)-1;
+echo "$num_branches branches found..."
+if [ $num_branches == $MAXLOOPS ]; then
+  echo "$MAXLOOPS branches already exist; Creating new base image.";
+  mksquashfs / /boot/casper/base-$version.squashfs -e $EXBASE
+  echo base-$version.squashfs > /boot/casper/order.lst
+  echo "Mounting new image..."
+  mkdir /casper/base-$version.squashfs
+  mount -o loop /boot/casper/base-$version.squashfs
+  /casper/base-$version.squashfs
+  unionctl / --add --after /cow --mode ro /casper/base-$version.squashfs
+  echo "You MUST reboot before making another backup!"
+  exit
+fi
+if [ $num_branches \> $MAXLOOPS ]; then
+  echo "$MAXLOOPS branches already exist. Aborting."
+  exit
+fi
+
+echo -n "" > $EXCLUDES
+echo -n "" > $INCLUDES
+
+echo "Reading /cow..."
+cow_files=$(find /cow -depth);
+echo $cow_files | sed -e 's% %\n%g' > /tmp/foo
+for x in $EXLIST; do
+	echo CHECKING: $x >> $EXCLUDES
+	echo $cow_files | sed -e 's% %\n%g' | grep $x >> $EXCLUDES
+	cow_files=$(echo $cow_files | sed -e 's% %\n%g' | grep -v $x)
+done
+
+for x in $cow_files; do
+	let files=$files+1;
+	file[$files]=$x;
+done
+
+branches=$(/usr/sbin/unionctl / --list | grep -v /cow | sed -e 's%\s%%g' |
+cut -d'(' -f1);
+
+# Create list of excludes
+for x in $(seq 1 $files); do
+  file=$(echo ${file[$x]} | sed -e 's%/cow%%')
+  zap=0
+  is_wh_file=0
+  keep_wh=0
+  if [ $(echo $file | grep /\.wh\.) ]; then
+    deleted_file=$(echo $file | sed -e s%\.wh\.%%);
+    is_wh_file=1
+  fi
+  for branch in $branches; do
+    if [ $zap == 0 ];then
+      if [ -f "$branch"/"$file" ]; then
+        /usr/bin/cmp -s /cow"$file" "$branch"/"$file" && zap=1
+      elif [ -d "$branch"/"$file" ]; then
+        grep "$file"/ $INCLUDES > /dev/null || zap=1
+      fi
+    fi
+    if [ $is_wh_file == 1 ] && [ $zap == 0 ]; then
+      if [ -e "$branch"/"$deleted_file" ]; then
+        keep_wh=1
+      fi
+    fi
+  done
+
+  if [ $is_wh_file == 1 ] && [ $keep_wh == 0 ]; then
+    zap=1;
+  fi
+  if [ $zap == 0 ]; then
+    echo $file >> $INCLUDES
+    echo -n "+"
+  else
+    echo /cow$file >> $EXCLUDES
+    echo -n "-"
+  fi
+done
+
+echo
+echo "Creating /boot/casper/$version.squashfs..."
+mksquashfs /cow /boot/casper/$version.squashfs -ef $EXCLUDES
+echo $version.squashfs >> /boot/casper/order.lst
+mount -o remount,ro /boot
+echo "Mounting new image..."
+mkdir /casper/$version.squashfs
+mount -o loop /boot/casper/$version.squashfs /casper/$version.squashfs
+unionctl / --add --after /cow --mode ro /casper/$version.squashfs
+rm $EXCLUDES
+rm $INCLUDES

@@ -1,0 +1,76 @@
+$ make menuconfig
+AUTOFS_FS
+SQUASHFS
+DEVTMPFS
+
+aufs patch
+http://aufs.sourceforge.net/
+
+# debootstrap --arch i386 squeeze /mnt/chroot/
+# apt-get install locales
+# dpkg-reconfigure locales
+# apt-get install localepurge
+# localepurge
+# mksquashfs /mnt/chroot/ filesystem.squashfs
+
+# apt-get install live-initramfs
+$ ls /usr/share/initramfs-tools/scripts/
+# mkinitramfs -o initrd.img.gz 2.6.36
+# gunzip initrd.img.gz
+# cd cpio
+# cpio -idv < ../initrd.img 
+# cp /boot/vmlinuz-2.6.36 /media/usb/live/vmlinuz 
+
+$ pwd
+/media/usb0/syslinux
+$ ls
+live.cfg  menu.cfg  splash.png  stdmenu.cfg  syslinux.cfg  vesamenu.c32
+$ cat live.cfg 
+label live
+      menu label live
+      kernel /live/vmlinuz
+      append initrd=/live/initrd.img boot=live config quiet
+$ 
+= =b> metion the "boot=live", you can find clues in cpio/init
+$ pwd
+/home/c-aries/temp/live/cpio
+$ ls scripts/
+functions    init-top  live-bottom     live-helpers   local           nfs
+init-bottom  live      live-functions  live-premount  local-premount
+# umount /dev/sdb1
+$ kvm -m 512 -hda /dev/sdb
+
+# cp ~/source/linux/linux-2.6.36/scripts/gen_initramfs_list.sh /usr/local/bin/
+# chmod +x /usr/local/bin/gen_initramfs_list.sh
+# cp ~/source/linux/linux-2.6.36/usr/gen_init_cpio /usr/local/bin/
+# cp -R /lib/modules/2.6.36/kernel/fs/autofs/ cpio2/lib/modules/2.6.36/kernel/fs/
+$ gen_initramfs_list.sh cpio2/ > list
+# gen_init_cpio list > initrd.img
+$ gzip initrd.img 
+$ mv initrd.img.gz initrd.img
+
+# mount -o remount,rw /dev/sda1
+# mksquashfs /live/cow /live/image/save/save.000
+# mount -o remount,ro /dev/sda1
+
+# unsqashfs /live/image/save/save.000
+# cp -Ru squashfs-root/* /
+
+$ dd if=/dev/null of=live-rw bs=512M seek=1
+$ cat /media/usb0/syslinux/live.cfg
+label live
+      menu label live
+      kernel /live/vmlinuz
+      append initrd=/live/initrd.img boot=live config debug persistent
+$ 
+= =b> "persistent" keyword, in the initrd.img scripts/{live,livehelpers} find_cow_device ()
+$ sudo mkfs.ext3 -F live-rw
+$ sudo cp live-rw /media/usb0/
+= =b> find_cow_device find the file name "live-rw"
+
+mount -t aufs -o noatime,noxino,dirs=/cow=rw://filesystem.squashfs=rr aufs /row
+$ cat /var/log/live.log
+mount -o bind /live/image /live-rw-backing
+losetup /dev/loop1 /live-rw-backing/live-rw
+mount -t ext3 -o rw,noatime /dev/loop1 /cow
+$
