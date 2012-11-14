@@ -1,0 +1,4 @@
+irq_desc_tree
+radix_tree_lookup
+request_threaded_irq
+request_irq
