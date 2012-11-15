@@ -25,6 +25,8 @@ static unsigned long height_to_maxindex[7];
 16777215
 1073741823
 4294967295
+radix_tree_lookup
+$ grep -n -R -i "radix" kernel/irq/*.c
 alloc_desc
 irq_desc_tree
 radix_tree_lookup
