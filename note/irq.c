@@ -6,13 +6,16 @@ radix_tree_insert:rcu_assign_pointer(root->rnode, item);
 struct radix_tree_node {
   unsigned int height;
   void __rcu *slots[RADIX_TREE_MAP_SIZE];
+  unsigned long tags[3][8];
 };
 radix_tree_insert:rcu_assign_pointer(node->slots[offset], item);
+radix_tree_extend
 RADIX_TREE_MAP_SHIFT 6
 RADIX_TREE_MAP_SIZE 64
 RADIX_TREE_MAP_MASK (64-1)
 RADIX_TREE_INDEX_BITS 32
 RADIX_TREE_MAX_PATH 6
+RADIX_TREE_MAX_TAGS 3
 struct radix_tree_preload {
   int nr;
   struct radix_tree_node *nodes[6];
