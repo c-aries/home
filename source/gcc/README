@@ -1,0 +1,24 @@
+CC='gcc -B/usr/bin' ../gcc-4.4.2/configure --prefix=/tools --with-gmp=/tools --with-mpfr=/tools --disable-nls --enable-shared --enable-languages=c --with-local-prefix=/tools
+make bootstrap
+export LD_LIBRARY_PATH=/tools/lib
+../gcc-4.5.1/configure  --prefix=/tools --with-gmp=/tools --with-mpfr=/tools --with-mpc=/tools --disable-werror --disable-nls --disable-shared --enable-languages=c
+
+../gcc-4.5.1/configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib --localstatedir=/var --infodir=/usr/share/info --mandir=/usr/share/man --enable-languages=c,c++
+../gcc-4.5.1/configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib --localstatedir=/var --infodir=/usr/share/info --mandir=/usr/share/man --enable-languages=c,c++ --enable-shared
+
+../gcc-4.5.2/configure --prefix=/usr --sysconfdir=/etc --libexecdir=/usr/lib --localstatedir=/var --infodir=/usr/share/info --mandir=/usr/share/man --enable-languages=c,c++ --enable-shared
+
+--- Error
+/home/c-aries/source/gcc/build/./gcc/xgcc -B/home/c-aries/source/gcc/build/./gcc/ -B/usr/i686-pc-linux-gnu/bin/ -B/usr/i686-pc-linux-gnu/lib/ -isystem /usr/i686-pc-linux-gnu/include -isystem /usr/i686-pc-linux-gnu/sys-include    -g -O2 -O2  -g -O2 -DIN_GCC  -fomit-frame-pointer -W -Wall -Wwrite-strings -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wold-style-definition  -isystem ./include  -fPIC -g -DHAVE_GTHR_DEFAULT -DIN_LIBGCC2 -D__GCC_FLOAT_NOT_NEEDED   -I. -I. -I../.././gcc -I../../../gcc-4.5.1/libgcc -I../../../gcc-4.5.1/libgcc/. -I../../../gcc-4.5.1/libgcc/../gcc -I../../../gcc-4.5.1/libgcc/../include -I../../../gcc-4.5.1/libgcc/config/libbid -DENABLE_DECIMAL_BID_FORMAT -DHAVE_CC_TLS  -DUSE_TLS -o _muldi3.o -MT _muldi3.o -MD -MP -MF _muldi3.dep -DL_muldi3 -c ../../../gcc-4.5.1/libgcc/../gcc/libgcc2.c \
+	  -fvisibility=hidden -DHIDE_EXPORTS
+In file included from ../../../gcc-4.5.1/libgcc/../gcc/libgcc2.c:29:0:
+../../../gcc-4.5.1/libgcc/../gcc/tsystem.h:87:19: fatal error: stdio.h: No such file or directory
+compilation terminated.
+make[3]: *** [_muldi3.o] Error 1
+make[3]: Leaving directory `/home/c-aries/source/gcc/build/i686-pc-linux-gnu/libgcc'
+make[2]: *** [all-stage1-target-libgcc] Error 2
+make[2]: Leaving directory `/home/c-aries/source/gcc/build'
+make[1]: *** [stage1-bubble] Error 2
+make[1]: Leaving directory `/home/c-aries/source/gcc/build'
+make: *** [all] Error 2
+
